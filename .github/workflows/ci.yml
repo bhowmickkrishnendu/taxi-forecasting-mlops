@@ -1,15 +1,18 @@
-# GitHub Actions CI for the taxi-forecasting project.
+# GitHub Actions CI/CD for the taxi-forecasting project.
 #
-# Mirrors the quality gate in buildspec.yml (CodeBuild) so every push and PR
-# gets the same checks on GitHub:
+# Every push and PR:
 #   1. Ruff lint + pytest with the 75% coverage gate (pyproject.toml)
 #   2. Terraform fmt/validate for infra/terraform (no AWS credentials needed)
-#   3. Docker build of the API image's dependency stage
+#   3. PRs only: Docker build of the API image's dependency stage
 #
-# The full API image bakes in mlruns/, mlflow.db and the demand-history parquet,
-# which are gitignored, so it is built by CodeBuild (buildspec.yml) after those
-# artifacts are fetched from S3. Here we only prove the Dockerfile and
-# requirements build cleanly from a fresh checkout.
+# Push to main (after 1 and 2 pass) also deploys to AWS:
+#   assume AWS_ROLE_ARN via OIDC -> pull baked model artifacts from S3 ->
+#   build image -> push to ECR -> roll the ECS service -> wait until stable ->
+#   check /health through the ALB.
+#
+# Repository variables (Settings -> Secrets and variables -> Actions -> Variables):
+#   AWS_ROLE_ARN, AWS_REGION, ECR_REPOSITORY, ECS_CLUSTER, ECS_SERVICE,
+#   ARTIFACTS_BUCKET, API_URL  (values come from `terraform output`).
 
 name: CI
 
@@ -79,6 +82,7 @@ jobs:
 
   docker-build:
     name: Docker build (dependency stage)
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     needs: lint-test
     steps:
@@ -96,3 +100,99 @@ jobs:
           tags: taxi-forecasting-api:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to AWS ECS
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [lint-test, terraform]
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+      ECS_SERVICE: ${{ vars.ECS_SERVICE }}
+      ARTIFACTS_BUCKET: ${{ vars.ARTIFACTS_BUCKET }}
+      API_URL: ${{ vars.API_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Fetch baked model artifacts from S3
+        run: |
+          aws s3 sync "s3://$ARTIFACTS_BUCKET/mlruns" ./mlruns --only-show-errors
+          aws s3 cp "s3://$ARTIFACTS_BUCKET/mlflow.db" ./mlflow.db --only-show-errors
+          mkdir -p data/processed
+          aws s3 cp "s3://$ARTIFACTS_BUCKET/demand_hourly.parquet" ./data/processed/demand_hourly.parquet --only-show-errors
+          python3 scripts/make_mlflow_portable.py --src mlflow.db --dest mlflow.container.db --new-base "file:///app/mlruns"
+
+      - name: Log in to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Roll the ECS service
+        run: |
+          aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" \
+            --force-new-deployment --query "service.serviceName" --output text
+          aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE"
+
+      - name: Service and container status
+        run: |
+          aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" \
+            --query "services[0].{service:serviceName,status:status,desired:desiredCount,running:runningCount,pending:pendingCount,taskDefinition:taskDefinition}" \
+            --output table
+          TASKS=$(aws ecs list-tasks --cluster "$ECS_CLUSTER" --service-name "$ECS_SERVICE" --query "taskArns" --output text)
+          if [ -n "$TASKS" ] && [ "$TASKS" != "None" ]; then
+            aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks $TASKS \
+              --query "tasks[].{task:taskArn,lastStatus:lastStatus,health:healthStatus,image:containers[0].image,started:startedAt}" \
+              --output table
+          else
+            echo "No running tasks (desired count is 0)."
+          fi
+
+      - name: Smoke test /health through the ALB
+        run: |
+          DESIRED=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" --query "services[0].desiredCount" --output text)
+          if [ "$DESIRED" = "0" ]; then
+            echo "Desired count is 0 - image pushed, skipping health check."
+            exit 0
+          fi
+          for i in $(seq 1 20); do
+            BODY=$(curl -fsS --max-time 10 "$API_URL/health" || true)
+            if echo "$BODY" | grep -q '"status":"ok"'; then
+              echo "$BODY"
+              {
+                echo "### Deployed API is healthy"
+                echo ""
+                echo "- URL: $API_URL"
+                echo "- Commit: \`${GITHUB_SHA}\`"
+                echo "- /health: \`$BODY\`"
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "Waiting for healthy API ($i/20)..."
+            sleep 15
+          done
+          echo "API did not become healthy: $BODY"
+          exit 1
