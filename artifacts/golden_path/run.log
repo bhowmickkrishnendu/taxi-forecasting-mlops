@@ -1,0 +1,1034 @@
+
+===== [tests] D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Scripts\python.exe -m pytest -q =====
+........................................................................ [ 60%]
+................................................                         [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\starlette\formparsers.py:12
+  D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Lib\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+===== [pipeline] D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Scripts\python.exe -m scripts.run_pipeline --year =====
+2026-10-17 14:57:13,746 INFO src.data.validation: Cleaned trips: 2964624 -> 2727349 rows (dropped 237275)
+2026-10-17 14:57:16,591 INFO __main__: Wrote D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\data\processed\trips_clean.parquet (2727349 rows)
+2026-10-17 14:57:16,919 INFO src.data.aggregation: Aggregated demand: 253 zones x 744 hours = 188232 rows
+2026-10-17 14:57:16,989 INFO __main__: Wrote D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\data\processed\demand_hourly.parquet (188232 rows)
+2026-10-17 14:57:17,942 INFO src.features.demand_features: Demand features: dropped 42504 warm-up rows (max lag=168)
+2026-10-17 14:57:17,942 INFO src.features.demand_features: Demand feature table: 145728 rows x 23 cols
+2026-10-17 14:57:19,961 INFO src.features.fare_features: Fare feature table: 2727349 rows x 16 cols
+2026-10-17 14:57:20,098 INFO __main__: Wrote D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\data\features\demand_features.parquet (145728 rows)
+2026-10-17 14:57:21,544 INFO __main__: Wrote D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\data\features\fare_features.parquet (2727349 rows)
+2026-10-17 14:57:21,575 INFO src.data.splits: Split on 'pickup_hour': train=116582 val=14573 test=14573
+2026-10-17 14:57:21,706 INFO __main__: Wrote D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\data\features\demand_train.parquet (116582 rows)
+2026-10-17 14:57:21,744 INFO __main__: Wrote D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\data\features\demand_val.parquet (14573 rows)
+2026-10-17 14:57:21,766 INFO __main__: Wrote D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\data\features\demand_test.parquet (14573 rows)
+2026-10-17 14:57:22,388 INFO src.data.splits: Split on 'tpep_pickup_datetime': train=2181879 val=272735 test=272735
+2026-10-17 14:57:23,984 INFO __main__: Wrote D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\data\features\fare_train.parquet (2181879 rows)
+2026-10-17 14:57:24,186 INFO __main__: Wrote D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\data\features\fare_val.parquet (272735 rows)
+2026-10-17 14:57:24,350 INFO __main__: Wrote D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\data\features\fare_test.parquet (272735 rows)
+2026-10-17 14:57:24,351 INFO __main__: Pipeline summary: {
+  "year": 2024,
+  "month": 1,
+  "cleaning": {
+    "input_rows": 2964624,
+    "output_rows": 2727349,
+    "total_dropped": 237275,
+    "dropped": {
+      "outside_target_period": 18,
+      "trip_duration_out_of_range": 36999,
+      "trip_distance_out_of_range": 58,
+      "fare_out_of_range": 32321,
+      "passenger_count_out_of_range": 167879
+    }
+  },
+  "demand_feature_rows": 145728,
+  "fare_feature_rows": 2727349
+}
+
+===== [train] D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Scripts\python.exe -m scripts.train_models --n-trials =====
+2026-10-17 14:57:27,237 INFO src.models.train: [demand] train=116582 val=14573 test=14573, tuning ['xgboost', 'lightgbm'] with 1 trials each
+2026-10-17 14:57:30,558 INFO src.models.tuning: Tuned xgboost: best val RMSE=8.7915 over 1 trials
+2026-10-17 14:57:34,141 INFO src.utils.mlflow_utils: MLflow tracking URI: sqlite:///mlflow.db
+2026-10-17 14:57:34,617 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.schemas
+2026-10-17 14:57:34,617 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.tables
+2026-10-17 14:57:34,617 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.types
+2026-10-17 14:57:34,617 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.constraints
+2026-10-17 14:57:34,617 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.defaults
+2026-10-17 14:57:34,617 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.comments
+2026-10-17 14:57:34,618 INFO alembic.runtime.plugins: setup plugin alembic.ext.checkconstraint_byname
+2026/10/17 14:57:35 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/17 14:57:35 INFO mlflow.store.db.utils: Updating database tables
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Lib\site-packages\_distutils_hack\__init__.py:18: UserWarning: Distutils was imported before Setuptools, but importing Setuptools also replaces the `distutils` module in `sys.modules`. This may lead to undesirable behaviors or errors. To avoid these issues, avoid using distutils directly, ensure that setuptools is installed in the traditional way (e.g. not an editable install), and/or make sure that setuptools is always imported before distutils.
+  warnings.warn(
+D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Lib\site-packages\_distutils_hack\__init__.py:33: UserWarning: Setuptools is replacing distutils.
+  warnings.warn("Setuptools is replacing distutils.")
+Successfully registered model 'taxi-demand-forecaster'.
+Created version '1' of model 'taxi-demand-forecaster'.
+D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Lib\site-packages\_distutils_hack\__init__.py:18: UserWarning: Distutils was imported before Setuptools, but importing Setuptools also replaces the `distutils` module in `sys.modules`. This may lead to undesirable behaviors or errors. To avoid these issues, avoid using distutils directly, ensure that setuptools is installed in the traditional way (e.g. not an editable install), and/or make sure that setuptools is always imported before distutils.
+  warnings.warn(
+D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Lib\site-packages\_distutils_hack\__init__.py:33: UserWarning: Setuptools is replacing distutils.
+  warnings.warn("Setuptools is replacing distutils.")
+D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Lib\site-packages\_distutils_hack\__init__.py:18: UserWarning: Distutils was imported before Setuptools, but importing Setuptools also replaces the `distutils` module in `sys.modules`. This may lead to undesirable behaviors or errors. To avoid these issues, avoid using distutils directly, ensure that setuptools is installed in the traditional way (e.g. not an editable install), and/or make sure that setuptools is always imported before distutils.
+  warnings.warn(
+D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Lib\site-packages\_distutils_hack\__init__.py:33: UserWarning: Setuptools is replacing distutils.
+  warnings.warn("Setuptools is replacing distutils.")
+Successfully registered model 'taxi-fare-predictor'.
+Created version '1' of model 'taxi-fare-predictor'.
+{
+  "demand": {
+    "problem": "demand",
+    "selection_metric": "rmse",
+    "best_estimator": "lightgbm",
+    "results": [
+      {
+        "estimator": "xgboost",
+        "val_metrics": {
+          "rmse": 8.791486157190903,
+          "mae": 2.6873466580246466,
+          "mape": 45.78544866187343,
+          "r2": 0.9588218880871633
+        },
+        "test_metrics": {
+          "rmse": 9.088577485364599,
+          "mae": 2.642329195141789,
+          "mape": 41.80379009298336,
+          "r2": 0.968087906214378
+        },
+        "run_id": "ffd56736e7fe4a809511d1915a0c0368"
+      },
+      {
+        "estimator": "lightgbm",
+        "val_metrics": {
+          "rmse": 8.418897603165721,
+          "mae": 2.561596011646884,
+          "mape": 43.549218041855035,
+          "r2": 0.9622382344909153
+        },
+        "test_metrics": {
+          "rmse": 8.70222957112466,
+          "mae": 2.5349826042597443,
+          "mape": 40.19191196345925,
+          "r2": 0.9707433535520196
+        },
+        "run_id": "db346054570e453c910f9681d90be95e"
+      }
+    ],
+    "registered": {
+      "name": "taxi-demand-forecaster",
+      "version": 1
+    },
+    "artifacts_dir": "D:\\AI & MLOps\\Capstone_Project\\taxi-forecasting-student\\artifacts\\demand"
+  },
+  "fare": {
+    "problem": "fare",
+    "selection_metric": "rmse",
+    "best_estimator": "lightgbm",
+    "results": [
+      {
+        "estimator": "xgboost",
+        "val_metrics": {
+          "rmse": 3.651104055173245,
+          "mae": 0.8019637395817499,
+          "mape": 17.8911284713954,
+          "r2": 0.9476821677073033
+        },
+        "test_metrics": {
+          "rmse": 3.772049700249328,
+          "mae": 0.8370477479454886,
+          "mape": 7.274004591042766,
+          "r2": 0.9469201592391191
+        },
+        "run_id": "79ddf37f1a13499495e6953a423ca49f"
+      },
+      {
+        "estimator": "lightgbm",
+        "val_metrics": {
+          "rmse": 3.3749222330576556,
+          "mae": 0.7697903178483098,
+          "mape": 14.943128464283904,
+          "r2": 0.9552978037675819
+        },
+        "test_metrics": {
+          "rmse": 3.471696511880664,
+          "mae": 0.8151463488087813,
+          "mape": 8.691154502779941,
+          "r2": 0.9550366868685203
+        },
+        "run_id": "9620443f731d46e6bb53bd2738c3e3cd"
+      }
+    ],
+    "registered": {
+      "name": "taxi-fare-predictor",
+      "version": 1
+    },
+    "artifacts_dir": "D:\\AI & MLOps\\Capstone_Project\\taxi-forecasting-student\\artifacts\\fare"
+  }
+}
+
+===== [batch] D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Scripts\python.exe -m scripts.batch_forecast --horizon =====
+2026-10-17 15:01:17,669 INFO src.utils.mlflow_utils: MLflow tracking URI: sqlite:///mlflow.db
+2026-10-17 15:01:17,669 INFO src.serving.registry: Loading model for demand from models:/taxi-demand-forecaster/latest
+2026-10-17 15:01:18,015 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.schemas
+2026-10-17 15:01:18,016 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.tables
+2026-10-17 15:01:18,016 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.types
+2026-10-17 15:01:18,016 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.constraints
+2026-10-17 15:01:18,016 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.defaults
+2026-10-17 15:01:18,016 INFO alembic.runtime.plugins: setup plugin alembic.autogenerate.comments
+2026-10-17 15:01:18,016 INFO alembic.runtime.plugins: setup plugin alembic.ext.checkconstraint_byname
+2026-10-17 15:01:18,429 INFO alembic.runtime.migration: Context impl SQLiteImpl.
+2026-10-17 15:01:18,429 INFO alembic.runtime.migration: Will assume non-transactional DDL.
+D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Lib\site-packages\mlflow\store\artifact\utils\models.py:32: FutureWarning: ``mlflow.tracking.client.MlflowClient.get_latest_versions`` is deprecated since 2.9.0. Model registry stages will be removed in a future major release. To learn more about the deprecation of model registry stages, see our migration guide here: https://mlflow.org/docs/latest/model-registry.html#migrating-from-stages
+  latest = client.get_latest_versions(name, None if stage is None else [stage])
+2026-10-17 15:01:18,592 INFO src.utils.mlflow_utils: MLflow tracking URI: sqlite:///mlflow.db
+2026-10-17 15:01:18,592 INFO src.serving.registry: Loading model for fare from models:/taxi-fare-predictor/latest
+2026-10-17 15:01:18,725 INFO src.serving.service: ModelService ready: 188232 demand-history rows, 253 zones
+2026-10-17 15:01:18,953 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:18,986 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,020 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,051 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,081 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,110 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,146 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,185 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,226 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,269 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,314 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,356 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,408 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,463 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,514 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,555 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,613 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,644 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,676 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,710 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,744 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,777 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,807 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,837 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,868 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,900 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,932 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,966 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:19,999 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,032 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,065 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,095 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,129 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,162 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,194 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,225 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,257 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,292 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,331 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,367 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,407 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,445 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,483 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,519 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,559 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,595 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,631 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,667 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,702 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,735 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,769 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,801 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,832 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,861 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,893 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,925 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,957 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:20,990 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,022 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,054 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,088 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,120 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,151 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,183 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,213 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,244 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,275 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,306 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,336 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,374 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,406 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,444 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,482 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,522 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,558 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,597 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,634 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,671 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,707 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,740 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,775 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,812 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,845 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,880 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,915 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,949 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:21,984 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,019 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,054 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,089 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,127 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,164 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,198 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,234 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,268 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,304 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,342 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,374 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,408 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,443 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,477 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,511 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,546 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,580 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,614 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,649 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,684 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,717 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,754 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,789 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,826 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,862 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,896 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,929 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,963 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:22,992 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,022 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,052 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,081 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,111 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,146 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,178 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,210 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,244 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,276 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,308 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,340 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,370 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,398 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,428 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,458 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,487 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,519 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,548 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,581 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,613 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,646 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,681 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,719 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,753 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,788 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,821 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,852 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,886 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,920 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,952 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:23,993 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,030 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,067 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,102 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,139 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,175 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,213 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,254 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,293 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,331 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,365 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,400 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,437 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,476 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,506 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,536 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,566 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,600 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,632 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,667 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,703 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,739 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,778 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,813 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,850 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,883 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,917 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,952 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:24,989 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,030 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,074 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,116 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,156 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,195 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,235 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,270 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,305 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,340 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,370 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,399 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,430 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,460 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,490 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,523 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,556 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,587 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,618 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,647 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,677 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,706 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,735 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,763 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,793 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,819 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,844 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,873 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,899 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,926 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,952 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:25,978 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,005 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,035 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,061 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,087 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,116 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,145 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,174 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,205 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,236 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,267 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,302 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,334 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,367 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,400 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,433 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,466 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,502 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,538 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,574 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,610 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,646 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,678 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,712 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,744 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,776 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,808 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,839 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,871 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,903 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,935 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:26,966 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,000 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,032 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,064 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,097 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,129 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,161 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,196 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,233 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,270 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,308 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,343 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,377 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,414 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,448 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,482 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,516 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,548 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,581 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,616 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,647 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,679 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,711 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,744 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,775 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,809 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,841 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,872 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,905 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,936 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:27,967 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,000 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,031 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,063 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,095 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,127 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,158 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,191 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,223 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,256 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,289 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,322 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,354 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,388 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,420 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,451 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,483 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,515 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,547 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,581 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,614 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,649 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,682 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,713 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,744 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,777 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,808 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,840 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,872 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,904 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,937 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:28,970 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,002 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,035 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,068 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,100 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,132 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,165 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,198 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,231 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,265 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,297 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,328 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,361 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,393 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,424 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,456 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,488 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,520 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,554 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,586 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,618 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,652 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,686 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,721 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,757 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,793 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,828 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,862 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,897 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,931 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:29,967 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,000 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,034 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,069 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,102 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,135 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,169 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,200 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,232 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,264 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,296 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,325 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,356 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,386 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,415 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,446 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,476 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,507 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,539 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,569 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,600 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,629 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,657 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,686 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,716 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,743 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,771 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,799 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,827 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,855 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,886 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,918 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,953 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:30,988 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,020 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,051 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,083 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,115 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,147 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,180 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,212 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,244 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,278 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,314 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,353 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,392 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,428 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,468 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,504 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,541 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,580 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,618 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,652 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,686 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,722 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,755 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,787 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,819 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,851 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,882 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,915 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,946 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:31,977 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,012 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,050 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,080 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,113 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,147 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,176 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,205 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,233 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,260 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,288 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,317 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,347 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,377 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,406 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,437 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,467 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,495 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,523 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,553 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,584 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,613 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,644 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,674 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,706 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,739 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,774 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,807 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,843 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,878 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,912 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,949 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:32,985 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,020 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,055 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,092 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,130 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,167 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,207 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,255 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,299 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,349 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,397 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,438 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,476 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,514 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,557 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,609 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,654 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,701 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,745 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,791 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,835 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,876 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,917 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,960 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:33,998 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,036 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,083 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,128 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,172 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,214 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,252 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,290 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,330 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,369 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,408 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,449 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,489 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,527 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,569 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,608 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,645 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,685 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,723 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,760 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,800 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,840 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,879 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,920 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:34,963 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,002 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,045 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,085 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,124 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,169 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,213 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,258 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,308 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,362 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,415 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,466 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,515 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,561 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,606 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,650 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,699 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,750 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,796 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,838 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,882 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,924 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:35,969 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,017 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,068 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,125 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,186 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,240 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,290 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,350 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,408 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,462 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,519 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,569 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,616 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,663 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,706 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,750 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,795 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,839 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,885 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,938 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:36,990 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,041 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,092 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,143 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,194 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,243 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,295 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,348 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,401 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,449 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,496 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,545 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,592 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,643 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,693 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,739 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,781 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,828 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,874 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,918 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:37,965 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,012 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,062 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,111 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,159 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,209 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,261 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,311 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,359 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,406 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,450 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,493 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,537 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,577 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,619 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,670 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,718 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,761 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,807 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,850 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,895 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:38,947 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,000 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,048 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,098 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,150 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,205 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,259 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,306 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,357 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,403 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,454 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,501 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,545 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,591 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,639 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,693 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,744 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,788 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,834 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,889 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,943 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:39,993 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,037 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,086 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,137 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,186 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,237 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,289 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,334 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,381 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,424 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,468 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,517 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,566 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,609 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,652 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,701 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,751 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,796 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,842 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,890 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,943 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:40,997 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,048 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,096 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,151 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,206 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,260 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,318 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,374 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,428 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,488 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,545 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,600 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,658 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,711 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,763 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,826 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,883 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,942 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:41,997 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,055 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,113 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,169 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,227 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,290 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,349 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,406 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,463 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,552 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,609 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,664 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,721 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,782 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,835 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,892 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:42,947 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,001 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,056 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,107 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,163 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,220 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,274 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,335 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,428 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,498 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,561 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,625 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,688 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,742 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,818 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,875 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,926 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:43,988 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,046 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,114 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,173 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,233 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,289 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,353 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,433 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,497 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,560 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,626 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,700 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,781 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,854 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:44,924 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,015 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,099 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,184 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,256 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,321 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,390 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,452 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,506 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,574 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,639 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,697 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,761 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,835 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,902 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:45,962 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,031 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,100 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,159 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,232 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,287 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,355 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,417 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,478 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,542 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,606 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,681 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,742 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,810 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,875 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,933 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:46,992 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,054 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,115 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,185 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,249 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,306 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,369 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,429 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,486 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,557 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,621 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,684 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,749 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,825 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,892 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:47,959 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,013 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,076 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,133 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,198 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,262 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,324 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,379 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,434 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,492 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,549 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,606 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,662 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,720 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,776 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,838 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,898 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:48,961 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,024 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,082 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,141 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,206 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,265 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,330 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,393 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,454 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,514 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,585 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,646 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,713 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,779 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,846 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,917 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:49,994 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,065 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,130 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,199 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,268 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,343 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,416 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,486 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,551 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,612 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,674 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,740 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,805 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,867 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,930 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:50,986 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:51,044 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:51,105 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:51,167 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:51,222 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:51,282 INFO src.features.demand_features: Demand feature table: 169 rows x 23 cols
+2026-10-17 15:01:51,297 INFO src.serving.batch: Forecast 3 hours x 253 zones = 759 rows from 2024-02-01 00:00:00
+2026-10-17 15:01:51,323 INFO src.serving.batch: Wrote 759 forecast rows to D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\predictions.db
+{
+  "rows": 759,
+  "zones": 253,
+  "hours": 3,
+  "db_path": "D:\\AI & MLOps\\Capstone_Project\\taxi-forecasting-student\\predictions.db"
+}
+
+===== [serve] D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Scripts\python.exe -c 
+import json
+from fastapi.testclient import TestClient
+from src.serving.api import app
+
+with TestClient(app) as client:
+    health = client.get("/health").json()
+    print("health:", json.dumps(health))
+    assert health["status"] == "ok", health
+    fare = client.post("/predict/fare", json={
+        "trip_distance": 3.4, "pu_location_id": 132, "do_location_id": 230,
+        "passenger_count": 1, "pickup_datetime": "2024-01-15T18:30:00",
+    })
+    print("predict/fare:", fare.status_code, fare.text)
+    assert fare.status_code == 200, fare.text
+ =====
+D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Lib\site-packages\mlflow\store\artifact\utils\models.py:32: FutureWarning: ``mlflow.tracking.client.MlflowClient.get_latest_versions`` is deprecated since 2.9.0. Model registry stages will be removed in a future major release. To learn more about the deprecation of model registry stages, see our migration guide here: https://mlflow.org/docs/latest/model-registry.html#migrating-from-stages
+  latest = client.get_latest_versions(name, None if stage is None else [stage])
+{"event": "prediction", "timestamp": "2026-10-17T09:32:04.783546+00:00", "request_id": "f2b7862a-51ff-4fe9-82fb-acffae5cd8be", "problem": "fare", "model_version": "latest", "features": {"trip_distance": 3.4, "passenger_count": 1, "pu_location_id": 132, "do_location_id": 230, "trip_duration_min": null}, "prediction": 20.16}
+health: {"status": "ok", "demand_model_loaded": true, "fare_model_loaded": true, "history_hours": 744, "zones": 253}
+predict/fare: 200 {"predicted_fare":20.16,"duration_estimated":true,"request_id":"f2b7862a-51ff-4fe9-82fb-acffae5cd8be"}
+
+===== [responsible] D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Scripts\python.exe -m scripts.responsible.run_analysis =====
+2026-10-17 15:02:21,427 INFO Analysing demand
+2026-10-17 15:02:21,427 INFO MLflow tracking URI: sqlite:///mlflow.db
+2026-10-17 15:02:21,427 INFO Loading model for demand from models:/taxi-demand-forecaster/latest
+2026-10-17 15:02:22,469 INFO setup plugin alembic.autogenerate.schemas
+2026-10-17 15:02:22,470 INFO setup plugin alembic.autogenerate.tables
+2026-10-17 15:02:22,470 INFO setup plugin alembic.autogenerate.types
+2026-10-17 15:02:22,470 INFO setup plugin alembic.autogenerate.constraints
+2026-10-17 15:02:22,470 INFO setup plugin alembic.autogenerate.defaults
+2026-10-17 15:02:22,471 INFO setup plugin alembic.autogenerate.comments
+2026-10-17 15:02:22,471 INFO setup plugin alembic.ext.checkconstraint_byname
+2026-10-17 15:02:23,762 INFO Context impl SQLiteImpl.
+2026-10-17 15:02:23,762 INFO Will assume non-transactional DDL.
+D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Lib\site-packages\mlflow\store\artifact\utils\models.py:32: FutureWarning: ``mlflow.tracking.client.MlflowClient.get_latest_versions`` is deprecated since 2.9.0. Model registry stages will be removed in a future major release. To learn more about the deprecation of model registry stages, see our migration guide here: https://mlflow.org/docs/latest/model-registry.html#migrating-from-stages
+  latest = client.get_latest_versions(name, None if stage is None else [stage])
+2026-10-17 15:03:02,688 INFO demand: wrote model card + fairness JSON (3 flagged dimensions)
+2026-10-17 15:03:02,691 INFO Analysing fare
+2026-10-17 15:03:02,691 INFO MLflow tracking URI: sqlite:///mlflow.db
+2026-10-17 15:03:02,691 INFO Loading model for fare from models:/taxi-fare-predictor/latest
+D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Lib\site-packages\mlflow\store\artifact\utils\models.py:32: FutureWarning: ``mlflow.tracking.client.MlflowClient.get_latest_versions`` is deprecated since 2.9.0. Model registry stages will be removed in a future major release. To learn more about the deprecation of model registry stages, see our migration guide here: https://mlflow.org/docs/latest/model-registry.html#migrating-from-stages
+  latest = client.get_latest_versions(name, None if stage is None else [stage])
+2026-10-17 15:03:35,853 INFO fare: wrote model card + fairness JSON (3 flagged dimensions)
+2026-10-17 15:03:35,863 INFO Responsible-AI analysis complete. Cards in docs\model_cards
+
+===== [drift] D:\AI & MLOps\Capstone_Project\taxi-forecasting-student\.venv\Scripts\python.exe -m scripts.monitoring.demo_drift_report --problem =====
+demand: drifted=True (2/20) -> artifacts\drift\demand_drift_metrics.json
+fare: drifted=True (2/14) -> artifacts\drift\fare_drift_metrics.json

@@ -1,0 +1,90 @@
+{
+  "started_at": "2026-10-17T09:26:56+00:00",
+  "commit": "09f217822f350ec9c7a3a89cf686d38a4311d330",
+  "args": {
+    "clean": true,
+    "clean_raw": false,
+    "skip_download": true,
+    "year": 2024,
+    "month": 1,
+    "n_trials": 1,
+    "horizon": 3
+  },
+  "stages": [
+    {
+      "stage": "tests",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 12.0
+    },
+    {
+      "stage": "pipeline",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 16.3
+    },
+    {
+      "stage": "train",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 230.3
+    },
+    {
+      "stage": "batch",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 37.5
+    },
+    {
+      "stage": "serve",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.4
+    },
+    {
+      "stage": "responsible",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 90.8
+    },
+    {
+      "stage": "drift",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.8
+    }
+  ],
+  "finished_at": "2026-10-17T09:33:50+00:00",
+  "result": "passed",
+  "outputs": {
+    "pipeline_summary": {
+      "year": 2024,
+      "month": 1,
+      "cleaning": {
+        "input_rows": 2964624,
+        "output_rows": 2727349,
+        "total_dropped": 237275,
+        "dropped": {
+          "outside_target_period": 18,
+          "trip_duration_out_of_range": 36999,
+          "trip_distance_out_of_range": 58,
+          "fare_out_of_range": 32321,
+          "passenger_count_out_of_range": 167879
+        }
+      },
+      "demand_feature_rows": 145728,
+      "fare_feature_rows": 2727349
+    },
+    "demand": {
+      "model_card": true,
+      "fairness_report": true,
+      "drift_report": true
+    },
+    "fare": {
+      "model_card": true,
+      "fairness_report": true,
+      "drift_report": true
+    },
+    "predictions_db": true
+  }
+}

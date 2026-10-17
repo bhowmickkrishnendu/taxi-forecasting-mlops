@@ -1,6 +1,6 @@
 # Model Card — taxi-demand-forecaster
 
-_Generated: 2026-10-17 07:28 UTC_
+_Generated: 2026-10-17 09:33 UTC_
 
 ## Model details
 
