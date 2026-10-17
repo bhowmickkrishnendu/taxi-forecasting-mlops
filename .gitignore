@@ -21,6 +21,7 @@ data/raw/*
 data/processed/*
 data/features/*
 !data/**/.gitkeep
+!data/processed/pipeline_summary.json
 
 # MLflow
 mlruns/
@@ -28,7 +29,13 @@ mlflow.db
 *.db
 
 # Models / outputs
-artifacts/
+# Generated reports are ignored except the small evidence files listed below.
+artifacts/*
+!artifacts/demand/
+!artifacts/fare/
+!artifacts/responsible/
+!artifacts/drift/
+!artifacts/golden_path/
 *.pkl
 *.joblib
 

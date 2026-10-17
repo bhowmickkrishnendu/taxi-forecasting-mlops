@@ -29,6 +29,42 @@ Follow [setup](docs/SETUP.md) to download data, train registered models, and
 start the API and dashboard. Do not expect working predictions immediately
 after cloning: serving requires both registered models and saved demand history.
 
+## Golden Path (end to end from a clean state)
+
+One command runs every stage in order and stops at the first failure:
+tests → data pipeline → training and registration → batch forecast → API smoke
+test (`/health` and `/predict/fare`) → Responsible AI analysis → drift report.
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.golden_path --clean
+```
+
+- `--clean` deletes generated data, models, MLflow state and reports first
+  (add `--clean-raw` to also re-download the raw TLC file).
+- `--skip-download` reuses the cached raw file; `--n-trials 25` uses the full
+  tuning budget (default 1 for a fast run).
+- Each stage's status, duration and the commit are written to
+  `artifacts/golden_path/run_summary.json`, with the full log in
+  `artifacts/golden_path/run.log`.
+
+Expect several GB of free memory for the pipeline stage.
+
+## CI/CD and AWS Deployment
+
+`.github/workflows/ci.yml` runs Ruff, pytest with the coverage gate and
+Terraform validation on every push and PR. On `main` it then assumes an AWS
+role through GitHub OIDC, pulls the model artifacts from S3, builds the API
+image, pushes it to ECR, rolls the ECS Fargate service and smoke-tests
+`/health` through the ALB. Infrastructure is defined in `infra/terraform/`.
+
+## Evidence
+
+Reports from the latest golden-path run are committed for review:
+model cards and SHAP plots (`artifacts/demand/`, `artifacts/fare/`), fairness
+reports (`artifacts/responsible/`), drift metrics (`artifacts/drift/`), the
+pipeline summary (`data/processed/pipeline_summary.json`) and the run summary
+(`artifacts/golden_path/`).
+
 ## Documentation
 
 - [Request and launch the Windows course image](docs/STUDENT_AWS_IMAGE_ACCESS.md)
