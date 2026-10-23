@@ -47,7 +47,7 @@ test (`/health` and `/predict/fare`) → Responsible AI analysis → drift repor
   `artifacts/golden_path/run_summary.json`, with the full log in
   `artifacts/golden_path/run.log`.
 
-Expect several GB of free memory for the pipeline stage.
+The pipeline stage loads about 3M trips at once, so keep 5–6 GB of memory free.
 
 ## CI/CD and AWS Deployment
 
